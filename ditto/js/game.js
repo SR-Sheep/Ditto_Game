@@ -1,8 +1,8 @@
 var canvas = document.getElementById('gameCanvas');
 var ctx = canvas.getContext('2d');
 
-canvas.width = window.innerWidth - 100;
-canvas.height = window.innerHeight - 100;
+canvas.width = 1200;
+canvas.height = 300;
 
 let jumpping = false;
 let down = false;
@@ -25,13 +25,17 @@ const obstacleImgHeight = 50;
 
 
 let obstacleImg1 = new Image();
-obstacleImg1.src = "/asset/img/gamza.jpg";
+obstacleImg1.src = "asset/img/gamza.jpg";
 let subject = new Image();
-subject.src = "/asset/img/cat.png";
+subject.src = "asset/img/cat.png";
 let groundImg = new Image();
 groundImg.src = "asset/img/ground.png";
 let skyImg = new Image();
 skyImg.src="asset/img/sky.png";
+
+
+const canvasWidth = 600;
+const canvasHeight = 300;
 
 
 //공룡
@@ -209,13 +213,40 @@ document.addEventListener('keydown',function(e){
 })
 //게임오버
 function gameOver() {
+    //게임 오버 메세지
+    ctx.fillStyle = '#333';
+    ctx.font = '18px NeoDunggeunmoPro-Regular';
+    ctx.fillText("G  A  M  E  O  V  E  R", 300, 100);
+
     const score = Math.floor(timer/10);
     if(highScore<score){
         highScore=score;
     }
     timer = 0;
+    makeReStartButton();
+    //reset();  
+}
+
+//리셋 버튼
+function makeReStartButton(){
+    restartButton.style.display = 'block';
+}
+
+const restartButton = document.createElement('button');
+restartButton.innerHTML = '다시하기';
+restartButton.style.position = 'absolute';
+restartButton.style.left = 350 +"px";
+restartButton.style.top = 120 +"px";
+restartButton.style.display = 'none';
+// 캔버스에 다시하기 버튼 추가
+document.body.appendChild(restartButton);
+
+
+// 3. 다시하기 버튼 클릭 시 게임 다시 시작
+restartButton.onclick = function() {
     reset();
 }
+
 
 //리셋
 function reset(){
@@ -225,6 +256,10 @@ function reset(){
     ground.x = 0;
     //장애물 리셋
     obstacleArr = [];
+    //점수 초기화
+    timer = 0;
+    //다시하기 안보이기
+    restartButton.style.display = 'none';
     //게임 실행
     loop();
     

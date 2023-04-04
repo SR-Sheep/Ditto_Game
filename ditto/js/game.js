@@ -1,6 +1,12 @@
 var canvas = document.getElementById('gameCanvas');
 var ctx = canvas.getContext('2d');
 
+const gameWrap = document.getElementById('gameWrap');
+const restartButton = document.getElementById('restartBtn');
+
+const gameWidth = gameWrap.offsetWidth;
+const gameHeight = gameWrap.offsetHeight;
+
 canvas.width = 1200;
 canvas.height = 300;
 
@@ -38,7 +44,7 @@ const canvasWidth = 600;
 const canvasHeight = 300;
 
 
-//°ø·æ
+//ê³µë£¡
 let dino = {
     x: 50,
     y: floor,
@@ -51,7 +57,7 @@ let dino = {
     }
 };
 
-//¶¥
+//ë•…
 let ground = {
     x: 0,
     y: 200,
@@ -72,7 +78,7 @@ let ground = {
     }
 };
 
-//ÇÏ´Ã
+//í•˜ëŠ˜
 let sky ={
     x: 0,
     y: 40,
@@ -97,7 +103,7 @@ let sky ={
 
 ground.draw();
 
-//Àå¾Ö¹° °´Ã¼
+//ì¥ì• ë¬¼ ê°ì²´
 class Obstacle{
     constructor(){
         this.x = 800;
@@ -111,74 +117,74 @@ class Obstacle{
         ctx.fillRect(this.x,this.y,this.width,this.height);
     }
 }
-//Á¡¼ö ±×¸®±â
+//ì ìˆ˜ ê·¸ë¦¬ê¸°
 function drawScore() {
     ctx.fillStyle = '#333';
     ctx.font = '15px NeoDunggeunmoPro-Regular';
-    //¿ìÃø Á¤·ÄÀ» À§ÇÑ À§Ä¡ º¸Á¤
+    //ìš°ì¸¡ ì •ë ¬ì„ ìœ„í•œ ìœ„ì¹˜ ë³´ì •
     const timerLength = timer.toString().length;
-    const timerX = 600 - timerLength*10; 
-    ctx.fillText(Math.floor(timer/10), timerX, 30);
-    //ÃÖ°í Á¡¼ö
+    const timerX = gameWidth - 10 - timerLength*10; 
+    ctx.fillText(Math.floor(timer/10), timerX, 50);
+    //ìµœê³  ì ìˆ˜
     if(highScore>0){
-        const highScoreX = 600 - (timerLength+8)*10;
-        ctx.fillText('HI:  ' + highScore, highScoreX, 30);
+        const highScoreX = gameWidth  - 10 - (timerLength+8)*10;
+        ctx.fillText('HI:  ' + highScore, highScoreX, 50);
     }
 }
 function loop(){
     animation = requestAnimationFrame(loop);
-    //Äµ¹ö½º ÃÊ±âÈ­
+    //ìº”ë²„ìŠ¤ ì´ˆê¸°í™”
     ctx.clearRect(0,0,canvas.width,canvas.height);
-    //Å¸ÀÌ¸Ó Áõ°¡
+    //íƒ€ì´ë¨¸ ì¦ê°€
     timer++;
     gameSpeed = defaultSpeed + Math.floor(timer/1000);
     if(gameSpeed>maxGameSpeed) gameSpeed = maxGameSpeed;
-    //ÇÏ´Ã
+    //í•˜ëŠ˜
     sky.update();
-    //¶¥
+    //ë•…
     ground.update();
-    //Á¡ÇÁ(»ó½Â)
+    //ì í”„(ìƒìŠ¹)
     if(jumpping&&!down){
-        jumppingTime++; //Á¡ÇÁ Å¸ÀÌ¸Ó Áõ°¡
-        dino.y -=5; //Á¡ÇÁ·Â
-    //Á¡ÇÁ ÇÏ°­
+        jumppingTime++; //ì í”„ íƒ€ì´ë¨¸ ì¦ê°€
+        dino.y -=5; //ì í”„ë ¥
+    //ì í”„ í•˜ê°•
     }else if(dino.y<floor){
         dino.y+=5;
     }
-    //Á¡ÇÁ Å¸ÀÌ¸Ó 100 ÀÌ»óÀÏ °æ¿ì Á¡ÇÁ Áß´Ü
+    //ì í”„ íƒ€ì´ë¨¸ 100 ì´ìƒì¼ ê²½ìš° ì í”„ ì¤‘ë‹¨
     if(jumppingTime > 20){
         jumppingTime = 0;
         jumpping = false;
         down = true;
     }
-    //Á¡ÇÁ Á¦ÇÑ
-    if(dino.y>=floor){
+    //ì í”„ ì œí•œ, ì‚¬ìš©ì ì¸ì‹ ìƒ ë•…ì— ë‹¿ì•„ë„ ì í”„ê°€ ì•ˆë˜ëŠ” ê²ƒ ê°™ì€ ë¶€ë¶„ì´ ìˆì–´ ì¡°ì •
+    if(dino.y>=floor-5){
         down = false;
         jumpCount = 0;
     }
-    //Á¡¼ö
+    //ì ìˆ˜
     drawScore();
     dino.draw();
-    //Àå¾Ö¹° »ı¼º, 120 ÇÁ·¹ÀÓ¸¶´Ù
+    //ì¥ì• ë¬¼ ìƒì„±, 120 í”„ë ˆì„ë§ˆë‹¤
     if(timer % 120 === 0){
         var obstacle = new Obstacle();
         obstacleArr.push(obstacle);
     }
     let check = false;
-    //¹İº¹¹®
+    //ë°˜ë³µë¬¸
     obstacleArr.forEach((obstacle,idx,o)=>{
-        //xÁÂÇ¥°¡ 0 ¹Ì¸¸ ½Ã Á¦°Å
+        //xì¢Œí‘œê°€ 0 ë¯¸ë§Œ ì‹œ ì œê±°
         if(obstacle.x < 0){
             o.splice(idx,1);
         }
-        //Ãæµ¹¿©ºÎ ÆÇ´Ü
+        //ì¶©ëŒì—¬ë¶€ íŒë‹¨
         check = check|checkCollision(dino,obstacle);
         obstacle.x-=gameSpeed;
         obstacle.draw();
     })
-    //Ãæµ¹½Ã
+    //ì¶©ëŒì‹œ
     if(check){
-        //·çÇÁ Á¾·á
+        //ë£¨í”„ ì¢…ë£Œ
         gameOver();
         return false;
     }
@@ -186,7 +192,7 @@ function loop(){
 
 loop();
 
-//Ãæµ¹ °Ë»ç
+//ì¶©ëŒ ê²€ì‚¬
 function checkCollision(dino, obstacle){
     const isCollision = dino.x < obstacle.x + obstacle.width && 
     dino.x + dino.width > obstacle.x &&
@@ -195,7 +201,7 @@ function checkCollision(dino, obstacle){
 
     const xDiff = obstacle.x - (dino.x + dino.width);
     const yDiff =  obstacle.y - (dino.y + dino.height);
-    //Ãæµ¹½Ã
+    //ì¶©ëŒì‹œ
     if(isCollision){
         cancelAnimationFrame(animation);
         return true;
@@ -203,20 +209,20 @@ function checkCollision(dino, obstacle){
     return false;
     
 }
-//Å°´Ù¿î ÀÌº¥Æ®
+//í‚¤ë‹¤ìš´ ì´ë²¤íŠ¸
 document.addEventListener('keydown',function(e){
-    //½ºÆäÀÌ½º¹Ù
+    //ìŠ¤í˜ì´ìŠ¤ë°”
     if(e.code==='Space'&&!down){
         jumpping = true;
         jumpCount++;
     }
 })
-//°ÔÀÓ¿À¹ö
+//ê²Œì„ì˜¤ë²„
 function gameOver() {
-    //°ÔÀÓ ¿À¹ö ¸Ş¼¼Áö
+    //ê²Œì„ ì˜¤ë²„ ë©”ì„¸ì§€
     ctx.fillStyle = '#333';
     ctx.font = '18px NeoDunggeunmoPro-Regular';
-    ctx.fillText("G  A  M  E  O  V  E  R", 300, 100);
+    ctx.fillText("G  A  M  E  O  V  E  R", 323, 100);
 
     const score = Math.floor(timer/10);
     if(highScore<score){
@@ -227,40 +233,36 @@ function gameOver() {
     //reset();  
 }
 
-//¸®¼Â ¹öÆ°
+//ë¦¬ì…‹ ë²„íŠ¼
 function makeReStartButton(){
-    restartButton.style.display = 'block';
+    restartButton.classList.remove("hide");
 }
 
-const restartButton = document.createElement('button');
-restartButton.innerHTML = '´Ù½ÃÇÏ±â';
-restartButton.style.position = 'absolute';
-restartButton.style.left = 350 +"px";
-restartButton.style.top = 120 +"px";
-restartButton.style.display = 'none';
-// Äµ¹ö½º¿¡ ´Ù½ÃÇÏ±â ¹öÆ° Ãß°¡
-document.body.appendChild(restartButton);
+// ìº”ë²„ìŠ¤ì— ë‹¤ì‹œí•˜ê¸° ë²„íŠ¼ ì¶”ê°€
+gameWrap.appendChild(restartButton);
 
 
-// 3. ´Ù½ÃÇÏ±â ¹öÆ° Å¬¸¯ ½Ã °ÔÀÓ ´Ù½Ã ½ÃÀÛ
+//ë‹¤ì‹œí•˜ê¸° ë²„íŠ¼ í´ë¦­ ì‹œ ê²Œì„ ë‹¤ì‹œ ì‹œì‘
 restartButton.onclick = function() {
+    //ë‹¤ì‹œí•˜ê¸° ë²„íŠ¼ ì•ˆë³´ì´ê¸°
+    restartButton.classList.add("hide");
     reset();
 }
 
 
-//¸®¼Â
+//ë¦¬ì…‹
 function reset(){
-    //dino ¸®¼Â
+    //dino ë¦¬ì…‹
     dino.y=floor;
-    //ground ¸®¼Â
+    //ì í”„ ë¦¬ì…‹
+    jumpping = false;
+    //ground ë¦¬ì…‹
     ground.x = 0;
-    //Àå¾Ö¹° ¸®¼Â
+    //ì¥ì• ë¬¼ ë¦¬ì…‹
     obstacleArr = [];
-    //Á¡¼ö ÃÊ±âÈ­
+    //ì ìˆ˜ ì´ˆê¸°í™”
     timer = 0;
-    //´Ù½ÃÇÏ±â ¾Èº¸ÀÌ±â
-    restartButton.style.display = 'none';
-    //°ÔÀÓ ½ÇÇà
+    //ê²Œì„ ì‹¤í–‰
     loop();
     
 }

@@ -105,6 +105,62 @@ ground.draw();
 
 //장애물 객체
 class Obstacle{
+    constructor(x,y,w,h){
+        this.x = 800;
+        this.y = floor;
+        this.width = w;
+        this.height = h;
+    }
+    draw(color){
+        ctx.fillStyle = color??'black';
+        //ctx.drawImage(obstacleImg1,this.x-10,this.y-20, obstacleImgWidth, obstacleImgHeight);
+        ctx.fillRect(this.x,this.y,this.width,this.height);
+    }
+}
+
+//장애물 0 기본
+class Obstacle0 extends Obstacle{
+    constructor(){
+        super(800,floor,30,30);
+    }
+    draw(){
+        super.draw('red');
+    }
+}
+
+//장애물 1
+class Obstacle1 extends Obstacle{
+    constructor(){
+        super(800,floor,90,30);
+    }
+    draw(){
+        super.draw('green');
+    }
+}
+
+//장애물 2
+class Obstacle2 extends Obstacle{
+    constructor(){
+        super(800,100,30,90);
+    }
+    draw(){
+        super.draw('yellow');
+    }
+}
+//장애물 3
+class Obstacle3 extends Obstacle{
+    constructor(){
+        super(800,floor-100,30,30);
+    }
+    draw(){
+        super.draw('blue');
+    }
+}
+
+
+
+//구름 객체
+class Cloud{
     constructor(){
         this.x = 800;
         this.y = floor;
@@ -112,11 +168,25 @@ class Obstacle{
         this.height = 30;
     }
     draw(){
+        for (let i = 0; i < 100; i++) {
+            ctx.beginPath();
+            const x = Math.random() * canvas.width; // x 좌표
+            const y = Math.random() * canvas.height; // y 좌표
+            const r = Math.random() * 5; // 반지름
+            ctx.arc(x, y, r, 0, 2 * Math.PI); // 점 그리기
+            ctx.fillStyle = "black"; // 점 색상 설정
+            ctx.fill();
+          }
+
+
         ctx.fillStyle = 'red';
         //ctx.drawImage(obstacleImg1,this.x-10,this.y-20, obstacleImgWidth, obstacleImgHeight);
         ctx.fillRect(this.x,this.y,this.width,this.height);
     }
 }
+
+
+
 //점수 그리기
 function drawScore() {
     ctx.fillStyle = '#333';
@@ -143,6 +213,19 @@ function loop(){
     sky.update();
     //땅
     ground.update();
+    //장애물 생성, 60 프레임마다
+    if(timer % 80 === 0){
+        //장애물 타입 현재 0-3 4종류
+        const type = Math.round(Math.random()*3);
+        var obstacle;
+        switch(type){
+            case 0 : obstacle = new Obstacle0; break;
+            case 1 : obstacle = new Obstacle1; break;
+            case 2 : obstacle = new Obstacle2; break;
+            case 3 : obstacle = new Obstacle3; break;
+        }
+        obstacleArr.push(obstacle);
+    }
     //점프(상승)
     if(jumpping&&!down){
         jumppingTime++; //점프 타이머 증가
@@ -165,11 +248,7 @@ function loop(){
     //점수
     drawScore();
     dino.draw();
-    //장애물 생성, 120 프레임마다
-    if(timer % 120 === 0){
-        var obstacle = new Obstacle();
-        obstacleArr.push(obstacle);
-    }
+
     let check = false;
     //반복문
     obstacleArr.forEach((obstacle,idx,o)=>{
@@ -265,4 +344,18 @@ function reset(){
     //게임 실행
     loop();
     
+}
+
+//색상 반전 흐음.... 일단 보류
+function reveseCanversColor(){
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imageData.data;
+
+  for (let i = 0; i < data.length; i += 4) {
+    data[i] = 255 - data[i]; // 빨강 값 반전
+    data[i + 1] = 255 - data[i + 1]; // 초록 값 반전
+    data[i + 2] = 255 - data[i + 2]; // 파랑 값 반전
+  }
+
+  ctx.putImageData(imageData, 0, 0);
 }

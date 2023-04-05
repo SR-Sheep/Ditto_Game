@@ -106,8 +106,8 @@ ground.draw();
 //장애물 객체
 class Obstacle{
     constructor(x,y,w,h){
-        this.x = 800;
-        this.y = floor;
+        this.x = x;
+        this.y = y;
         this.width = w;
         this.height = h;
     }
@@ -141,7 +141,7 @@ class Obstacle1 extends Obstacle{
 //장애물 2
 class Obstacle2 extends Obstacle{
     constructor(){
-        super(800,100,30,90);
+        super(800,130,30,60);
     }
     draw(){
         super.draw('yellow');

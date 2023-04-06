@@ -28,7 +28,10 @@ let gameSpeed = defaultSpeed;
 const floor = 170;
 const obstacleImgWidth = 50;
 const obstacleImgHeight = 50;
+const maxJumpTime = 20;
 
+let jumpV = maxJumpTime;
+const jumpA = 1;
 
 let obstacleImg1 = new Image();
 obstacleImg1.src = "asset/img/gamza.jpg";
@@ -43,6 +46,7 @@ skyImg.src="asset/img/sky.png";
 const canvasWidth = 600;
 const canvasHeight = 300;
 
+let isNight = false;
 
 //공룡
 let dino = {
@@ -68,6 +72,7 @@ let ground = {
         //ctx.fillRect(this.x, this.y, this.width, this.height);
         ctx.drawImage(groundImg,this.x,this.y-20);
         ctx.drawImage(groundImg,this.x+this.width,this.y-20);
+        
     },
     update:function(){
         this.x-=gameSpeed;
@@ -201,12 +206,19 @@ function drawScore() {
         ctx.fillText('HI:  ' + highScore, highScoreX, 50);
     }
 }
+
+
 function loop(){
     animation = requestAnimationFrame(loop);
     //캔버스 초기화
     ctx.clearRect(0,0,canvas.width,canvas.height);
     //타이머 증가
     timer++;
+
+    isNight = timer%900>700;
+
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     gameSpeed = defaultSpeed + Math.floor(timer/1000);
     if(gameSpeed>maxGameSpeed) gameSpeed = maxGameSpeed;
     //하늘
@@ -229,16 +241,22 @@ function loop(){
     //점프(상승)
     if(jumpping&&!down){
         jumppingTime++; //점프 타이머 증가
-        dino.y -=5; //점프력
+        jumpV -=jumpA; //지면에 멀어질수록 속도 감소
+        dino.y -=jumpV; //점프력
     //점프 하강
     }else if(dino.y<floor){
-        dino.y+=5;
+        jumpV +=jumpA; //지면에 가까워질수록 속도 증가
+        dino.y+=jumpV;
+    }else if(dino.y>=floor){
+        dino.y = floor; //공룡 위치 초기화
+        jumpV=maxJumpTime; //점프 속도 초기화
     }
-    //점프 타이머 100 이상일 경우 점프 중단
-    if(jumppingTime > 20){
+    //점프 타이머 maxJumpTime 이상일 경우 점프 중단
+    if(jumppingTime > maxJumpTime){
         jumppingTime = 0;
         jumpping = false;
         down = true;
+        jumpV = 0;
     }
     //점프 제한, 사용자 인식 상 땅에 닿아도 점프가 안되는 것 같은 부분이 있어 조정
     if(dino.y>=floor-5){
@@ -266,6 +284,10 @@ function loop(){
         //루프 종료
         gameOver();
         return false;
+    }
+    //밤이면 반전
+    if(isNight){
+        reveseCanversColor();
     }
 }
 
@@ -296,6 +318,16 @@ document.addEventListener('keydown',function(e){
         jumpCount++;
     }
 })
+//키업 이벤트
+//키다운 이벤트
+document.addEventListener('keyup',function(e){
+    //스페이스바
+    if(e.code==='Space'&&!down){
+        jumppingTime = 60;
+    }
+})
+
+
 //게임오버
 function gameOver() {
     //게임 오버 메세지

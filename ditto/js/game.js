@@ -48,6 +48,9 @@ const canvasHeight = 300;
 
 let isNight = false;
 
+let obstacleInterval = 60; //장애물 출현 간격
+
+
 //공룡
 let dino = {
     x: 50,
@@ -146,7 +149,7 @@ class Obstacle1 extends Obstacle{
 //장애물 2
 class Obstacle2 extends Obstacle{
     constructor(){
-        super(800,130,30,60);
+        super(800,floor-30,30,60);
     }
     draw(){
         super.draw('yellow');
@@ -225,8 +228,8 @@ function loop(){
     sky.update();
     //땅
     ground.update();
-    //장애물 생성, 60 프레임마다
-    if(timer % 80 === 0){
+    //장애물 생성, obstacleInterval 프레임마다
+    if(timer % obstacleInterval === 0){
         //장애물 타입 현재 0-3 4종류
         const type = Math.round(Math.random()*3);
         var obstacle;
@@ -247,6 +250,7 @@ function loop(){
     }else if(dino.y<floor){
         jumpV +=jumpA; //지면에 가까워질수록 속도 증가
         dino.y+=jumpV;
+        if(dino.y>floor) dino.y=floor; //잠수하는 현상 수정
     }else if(dino.y>=floor){
         dino.y = floor; //공룡 위치 초기화
         jumpV=maxJumpTime; //점프 속도 초기화
@@ -268,17 +272,18 @@ function loop(){
     dino.draw();
 
     let check = false;
+    //맨 처음 요소가 화면 밖으로 나가면 제거
+    if(obstacleArr[0]?.x +obstacleArr[0]?.width < 0){
+        obstacleArr.splice(0,1);
+    }
     //반복문
     obstacleArr.forEach((obstacle,idx,o)=>{
-        //x좌표가 0 미만 시 제거
-        if(obstacle.x < 0){
-            o.splice(idx,1);
-        }
-        //충돌여부 판단
-        check = check|checkCollision(dino,obstacle);
         obstacle.x-=gameSpeed;
         obstacle.draw();
+        //충돌여부 판단
+        check = check|checkCollision(dino,obstacle);
     })
+    
     //충돌시
     if(check){
         //루프 종료
@@ -295,13 +300,12 @@ loop();
 
 //충돌 검사
 function checkCollision(dino, obstacle){
-    const isCollision = dino.x < obstacle.x + obstacle.width && 
-    dino.x + dino.width > obstacle.x &&
-    dino.y < obstacle.y + obstacle.height &&
-    dino.y + dino.height > obstacle.y
+    const isCollision
+    = dino.x <= obstacle.x + obstacle.width && //공룡 왼쪽 x
+    dino.x + dino.width >= obstacle.x && //공룡 오른쪽 x
+    dino.y <= obstacle.y + obstacle.height && //공룡 위 y
+    dino.y + dino.height >= obstacle.y //공룡 아래 y
 
-    const xDiff = obstacle.x - (dino.x + dino.width);
-    const yDiff =  obstacle.y - (dino.y + dino.height);
     //충돌시
     if(isCollision){
         cancelAnimationFrame(animation);

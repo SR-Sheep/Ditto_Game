@@ -17,14 +17,21 @@
 
         border: 2px solid #000;
       }
-      #restartBtn{
+      .game_btn{
         position : absolute;
-        left : 380px;
+        left : 350px;
         top : 130px;
         height: 40px;
-        width: 40px;
+        width: 100px;
 
-        font-size: 10px;
+        background-color: transparent;
+        border : 0px;
+        cursor: pointer;
+
+        font-size: 14px;
+        color : #424242;
+        user-select: none;
+        font-family: 'NeoDunggeunmoPro-Regular';
       }
       .hide{
         display: none;
@@ -43,7 +50,8 @@
   <body>
     <div id="gameWrap">
       <canvas id="gameCanvas"></canvas>
-      <button id="restartBtn" class="hide">다시하기</button>
+      <button id="startBtn" class="game_btn">시작하기</button>
+      <button id="restartBtn" class="hide game_btn">다시하기</button>
     </div>
     <script src="js/game.js"></script>
   </body>

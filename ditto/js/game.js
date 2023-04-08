@@ -3,6 +3,7 @@ var ctx = canvas.getContext('2d');
 
 const gameWrap = document.getElementById('gameWrap');
 const restartButton = document.getElementById('restartBtn');
+const startButton = document.getElementById('startBtn');
 
 const gameWidth = gameWrap.offsetWidth;
 const gameHeight = gameWrap.offsetHeight;
@@ -37,6 +38,10 @@ let obstacleImg1 = new Image();
 obstacleImg1.src = "asset/img/gamza.jpg";
 let subject = new Image();
 subject.src = "asset/img/cat.png";
+
+let deadSubject = new Image()
+deadSubject.src = "asset/img/dead_cat.png";
+
 let groundImg = new Image();
 groundImg.src = "asset/img/ground.png";
 let skyImg = new Image();
@@ -48,8 +53,9 @@ const canvasHeight = 300;
 
 let isNight = false;
 
-let obstacleInterval = 60; //장애물 출현 간격
+let obstacleInterval = 30; //장애물 출현 간격
 
+let gameover = false;
 
 //공룡
 let dino = {
@@ -58,9 +64,12 @@ let dino = {
     width: 30,
     height: 30,
     draw: function() {
-        ctx.fillStyle = '#666';
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-        //ctx.drawImage(subject,this.x-10,this.y-20,50, 50);
+        //ctx.fillStyle = '#666';
+        //ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.drawImage(subject,this.x-10,this.y-20,50, 50);
+    },
+    dead: function(){
+        ctx.drawImage(deadSubject,this.x-10,this.y-20,50, 50);
     }
 };
 
@@ -129,7 +138,8 @@ class Obstacle{
 //장애물 0 기본
 class Obstacle0 extends Obstacle{
     constructor(){
-        super(800,floor,30,30);
+        const size = 30;
+        super(800,floor,size,size);
     }
     draw(){
         super.draw('red');
@@ -139,7 +149,7 @@ class Obstacle0 extends Obstacle{
 //장애물 1
 class Obstacle1 extends Obstacle{
     constructor(){
-        super(800,floor,90,30);
+        super(800,floor,60,20);
     }
     draw(){
         super.draw('green');
@@ -149,7 +159,7 @@ class Obstacle1 extends Obstacle{
 //장애물 2
 class Obstacle2 extends Obstacle{
     constructor(){
-        super(800,floor-30,30,60);
+        super(800,floor-20,20,40);
     }
     draw(){
         super.draw('yellow');
@@ -158,7 +168,7 @@ class Obstacle2 extends Obstacle{
 //장애물 3
 class Obstacle3 extends Obstacle{
     constructor(){
-        super(800,floor-100,30,30);
+        super(800,floor-100,20,20);
     }
     draw(){
         super.draw('blue');
@@ -250,7 +260,10 @@ function loop(){
     }else if(dino.y<floor){
         jumpV +=jumpA; //지면에 가까워질수록 속도 증가
         dino.y+=jumpV;
-        if(dino.y>floor) dino.y=floor; //잠수하는 현상 수정
+        if(dino.y>floor){
+            dino.y = floor; //공룡 위치 초기화
+            jumpV=maxJumpTime; //점프 속도 초기화
+        } 
     }else if(dino.y>=floor){
         dino.y = floor; //공룡 위치 초기화
         jumpV=maxJumpTime; //점프 속도 초기화
@@ -269,8 +282,7 @@ function loop(){
     }
     //점수
     drawScore();
-    dino.draw();
-
+    
     let check = false;
     //맨 처음 요소가 화면 밖으로 나가면 제거
     if(obstacleArr[0]?.x +obstacleArr[0]?.width < 0){
@@ -286,9 +298,13 @@ function loop(){
     
     //충돌시
     if(check){
+        dino.dead();
+        cancelAnimationFrame(animation);
         //루프 종료
         gameOver();
         return false;
+    }else{
+        dino.draw();
     }
     //밤이면 반전
     if(isNight){
@@ -296,23 +312,14 @@ function loop(){
     }
 }
 
-loop();
+//loop();
 
 //충돌 검사
 function checkCollision(dino, obstacle){
-    const isCollision
-    = dino.x <= obstacle.x + obstacle.width && //공룡 왼쪽 x
+    return dino.x <= obstacle.x + obstacle.width && //공룡 왼쪽 x
     dino.x + dino.width >= obstacle.x && //공룡 오른쪽 x
     dino.y <= obstacle.y + obstacle.height && //공룡 위 y
     dino.y + dino.height >= obstacle.y //공룡 아래 y
-
-    //충돌시
-    if(isCollision){
-        cancelAnimationFrame(animation);
-        return true;
-    }
-    return false;
-    
 }
 //키다운 이벤트
 document.addEventListener('keydown',function(e){
@@ -323,7 +330,6 @@ document.addEventListener('keydown',function(e){
     }
 })
 //키업 이벤트
-//키다운 이벤트
 document.addEventListener('keyup',function(e){
     //스페이스바
     if(e.code==='Space'&&!down){
@@ -352,10 +358,11 @@ function gameOver() {
 function makeReStartButton(){
     restartButton.classList.remove("hide");
 }
-
-// 캔버스에 다시하기 버튼 추가
-gameWrap.appendChild(restartButton);
-
+//시작버튼 클릭 시
+startButton.onclick= function(){
+    startButton.classList.add("hide");
+    loop();
+}
 
 //다시하기 버튼 클릭 시 게임 다시 시작
 restartButton.onclick = function() {

@@ -316,9 +316,9 @@ function loop(){
 
 //충돌 검사
 function checkCollision(dino, obstacle){
-    return dino.x <= obstacle.x + obstacle.width && //공룡 왼쪽 x
+    return dino.x-10 <= obstacle.x + obstacle.width && //공룡 왼쪽 x
     dino.x + dino.width >= obstacle.x && //공룡 오른쪽 x
-    dino.y <= obstacle.y + obstacle.height && //공룡 위 y
+    dino.y-20 <= obstacle.y + obstacle.height && //공룡 위 y
     dino.y + dino.height >= obstacle.y //공룡 아래 y
 }
 //키다운 이벤트

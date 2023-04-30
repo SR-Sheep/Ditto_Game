@@ -11,19 +11,32 @@ const gameHeight = gameWrap.offsetHeight;
 canvas.width = 1200;
 canvas.height = 300;
 
+// 쿠키 만료 날짜 설정
+const expirationDate = new Date();
+expirationDate.setDate(expirationDate.getDate() + 30); // 30일 뒤
+
 let jumpping = false;
 let down = false;
 let jumppingTime = 0;
 let animation;
-let highScore = 0;
+
+//최고점을 쿠키에서 가져옴
+const cookies = document.cookie.split(';');
+const cookieObj = cookies.reduce((acc, cookie) => {
+  const [key, value] = cookie.trim().split('=');
+  acc[key] = value;
+  return acc;
+}, {});
+// 최고 점수 설정
+let highScore = cookieObj.highScore ?? 0;
 let limitJumpCount = 1;
 let jumpCount = 0;
 
 let timer = 0;
 let obstacleArr = [];
 
-const defaultSpeed = 10;
-const maxGameSpeed = 30;
+const defaultSpeed = 10; //초기 속도
+const maxGameSpeed = 30; //최대 속도
 let gameSpeed = defaultSpeed;
 
 const floor = 170;
@@ -36,16 +49,29 @@ const jumpA = 1;
 
 let obstacleImg1 = new Image();
 obstacleImg1.src = "asset/img/gamza.jpg";
+//공룡 이미지
 let subject = new Image();
-subject.src = "asset/img/cat.png";
+subject.src = "asset/img/dino_64.png";
+//공룡 이미지 프레임 선언
+const subjectFrames = [{x : 0, y: 0 , width : 64, height : 64}
+                        ,{x : 63, y: 0 , width : 64, height : 64}
+                        ,{x : 126, y: 0 , width : 64, height : 64}
+                        ,{x : 189, y: 0 , width : 64, height : 64}];
+
 
 let deadSubject = new Image()
-deadSubject.src = "asset/img/dead_cat.png";
+deadSubject.src = "asset/img/Dino_dead.png";
 
 let groundImg = new Image();
 groundImg.src = "asset/img/ground.png";
 let skyImg = new Image();
 skyImg.src="asset/img/sky.png";
+let cat = new Image();
+cat.src="asset/img/cat.png";
+let cat_2_1 = new Image();
+cat_2_1.src="asset/img/2_1_cat.jpg";
+let cat_1_3 = new Image();
+cat_1_3.src="asset/img/1_3_cat.jpg";
 
 
 const canvasWidth = 600;
@@ -53,7 +79,7 @@ const canvasHeight = 300;
 
 let isNight = false;
 
-let obstacleInterval = 30; //장애물 출현 간격
+let obstacleInterval = 50; //장애물 출현 간격
 
 let gameover = false;
 
@@ -64,9 +90,12 @@ let dino = {
     width: 30,
     height: 30,
     draw: function() {
+        const frame = parseInt(timer/10)%4;
+        const subjectFrame = subjectFrames[frame];
+        console.log(frame);
         //ctx.fillStyle = '#666';
         //ctx.fillRect(this.x, this.y, this.width, this.height);
-        ctx.drawImage(subject,this.x-10,this.y-20,50, 50);
+        ctx.drawImage(subject,subjectFrame.x, subjectFrame.y, subjectFrame.width,subjectFrame.height,this.x-10,this.y-20,50, 50);
     },
     dead: function(){
         ctx.drawImage(deadSubject,this.x-10,this.y-20,50, 50);
@@ -129,9 +158,16 @@ class Obstacle{
         this.height = h;
     }
     draw(color){
-        ctx.fillStyle = color??'black';
-        //ctx.drawImage(obstacleImg1,this.x-10,this.y-20, obstacleImgWidth, obstacleImgHeight);
-        ctx.fillRect(this.x,this.y,this.width,this.height);
+        if(color=='yellow'){
+            ctx.drawImage(cat_2_1,this.x,this.y,this.width,this.height);
+        }else if(color=='green'){
+            ctx.drawImage(cat_1_3,this.x,this.y,this.width,this.height);
+        }else{
+            ctx.drawImage(cat,this.x,this.y,this.width,this.height);
+        }
+        //ctx.fillStyle = color??'black';
+        //ctx.drawImage(cat,this.x-10,this.y-20, obstacleImgWidth, obstacleImgHeight);
+        //ctx.fillRect(this.x,this.y,this.width,this.height);
     }
 }
 
@@ -348,6 +384,8 @@ function gameOver() {
     const score = Math.floor(timer/10);
     if(highScore<score){
         highScore=score;
+        // 쿠키를 설정합니다.
+        document.cookie = `highScore=${highScore};expires=${expirationDate.toUTCString()};path=/`;
     }
     timer = 0;
     makeReStartButton();

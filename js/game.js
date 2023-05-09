@@ -57,6 +57,11 @@ const subjectFrames = [{x : 0, y: 0 , width : 64, height : 64}
                         ,{x : 63, y: 0 , width : 64, height : 64}
                         ,{x : 126, y: 0 , width : 64, height : 64}
                         ,{x : 189, y: 0 , width : 64, height : 64}];
+//폭주모드
+// const subjectFrames = [{x : 0, y: 0 , width : 64, height : 64}
+//                         ,{x : 64, y: 0 , width : 64, height : 64}
+//                         ,{x : 128, y: 0 , width : 64, height : 64}
+//                         ,{x : 192, y: 0 , width : 64, height : 64}];
 
 
 let deadSubject = new Image()
@@ -90,7 +95,7 @@ let dino = {
     width: 30,
     height: 30,
     draw: function() {
-        const frame = parseInt(timer/10)%4;
+        const frame = parseInt(timer)%4;
         const subjectFrame = subjectFrames[frame];
         console.log(frame);
         //ctx.fillStyle = '#666';

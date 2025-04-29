@@ -1,5 +1,6 @@
 # Ditto_Game
 크롬 공룡 게임을 모티브로 한 게임입니다.
+[바로가기](https://sr-sheep.github.io/Ditto_Game/)
 
 ## 패치노트
 ### 23.04.01
